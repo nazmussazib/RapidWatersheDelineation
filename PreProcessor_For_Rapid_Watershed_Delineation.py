@@ -2,19 +2,20 @@ __author__ = 'shams'
 
 import shutil
 import os
+import sys
 from RWSDelin_Utilities import *
-
+import shapefile
 def PreProcess_TauDEM_for_On_Fly_WatershedDelineation(input_dir_name,watershed_file,watershed_id_file,watershed_coast,p_file,gw_file,src_file,src_file_coast,dist_file):
-    input_dir1=input_dir_name+"\\Main_Watershed"
-    infile = input_dir1+"\\"+watershed_file
-    coast_file=input_dir1+"\\"+watershed_coast
-    complimentary_subwatershed_file=input_dir_name+"\\Subwatershed\\Full_watershed"
-    output_dir1=input_dir_name+"\\Subwatershed"
+    input_dir1=input_dir_name+"/Main_Watershed"
+    infile = input_dir1+"/"+watershed_file
+    coast_file=input_dir1+"/"+watershed_coast
+    complimentary_subwatershed_file=input_dir_name+"/Subwatershed/Full_watershed"
+    output_dir1=input_dir_name+"/Subwatershed"
     if not os.path.exists(input_dir1):
        os.makedirs(input_dir1)
     if not os.path.exists(output_dir1):
        os.makedirs(output_dir1)
-    output_dir2=input_dir_name+"\\Subwatershed_ALL"
+    output_dir2=input_dir_name+"/Subwatershed_ALL"
     if not os.path.exists(output_dir2):
        os.makedirs(output_dir2)
     os.chdir(input_dir1)
@@ -102,7 +103,7 @@ def PreProcess_TauDEM_for_On_Fly_WatershedDelineation(input_dir_name,watershed_f
       source_dir=output_dir1
       os.chdir(source_dir)
       for f in source:
-        dest = output_dir2+"\\Subwatershed"+str(f['properties']['GRIDCODE'])
+        dest = output_dir2+"/Subwatershed"+str(f['properties']['GRIDCODE'])
         os.mkdir(dest)
         sub=os.path.join(source_dir,"subwatershed_"+str(f['properties']['GRIDCODE'])+".*")
         com=os.path.join(source_dir,"Full_watershed"+str(f['properties']['GRIDCODE'])+".*")
@@ -120,7 +121,7 @@ def PreProcess_TauDEM_for_On_Fly_WatershedDelineation(input_dir_name,watershed_f
        source_dir=output_dir1
        os.chdir(source_dir)
        for f in source:
-        dest = output_dir2+"\\Subwatershed_coast"+str(f['properties']['GRIDCODE'])
+        dest = output_dir2+"/Subwatershed_coast"+str(f['properties']['GRIDCODE'])
         os.mkdir(dest)
         sub=os.path.join(source_dir,"subwatershed_coast_"+str(f['properties']['GRIDCODE'])+".*")
         files_sub=glob.glob(sub)
@@ -133,14 +134,14 @@ def PreProcess_TauDEM_for_On_Fly_WatershedDelineation(input_dir_name,watershed_f
 # # extract streamraster,flow direction, watershed grid for each of the subwateshed and store in the subwatershed directory
     with fiona.open(infile) as source:
        for f in source:
-            dir=output_dir2+"\\Subwatershed"+str(f['properties']['GRIDCODE'])
+            dir=output_dir2+"/Subwatershed"+str(f['properties']['GRIDCODE'])
             os.chdir(dir)
             inputfn = 'subwatershed_'+str(f['properties']['GRIDCODE'])+'.shp'                ##input file name
             complimentary_subwatershed_file='Full_watershed'+str(f['properties']['GRIDCODE'])+'.shp'
             outputBufferfn ='subwatershed_buffer'+str(f['properties']['GRIDCODE'])+'.shp'      ##input file buffer shapefile name
             bufferDist = Buffer_distance                                     ##buffer distance
             createBuffer(inputfn, outputBufferfn, bufferDist)       ## creating buffer shape file
-
+            print('buffer created')
             main_dir=input_dir1; flow_file=p_file;subwshed_file=gw_file;stream_file=src_file;D8distance_file=dist_file
             flowdir=os.path.join(main_dir,flow_file);flow_out_file=os.path.join(dir,'subwatershed_'+str(f['properties']['GRIDCODE'])+"p.tif")
             subwaterdir=os.path.join(main_dir,subwshed_file);subwater_out_file=os.path.join(dir,'subwatershed_'+str(f['properties']['GRIDCODE'])+"w.tif")
@@ -161,10 +162,10 @@ def PreProcess_TauDEM_for_On_Fly_WatershedDelineation(input_dir_name,watershed_f
             command_distance="gdalwarp -te " + xmin + " " + ymin + " " + xmax + " " + ymax + " -dstnodata -32768.00 -cutline " + outputBufferfn + " -cl "+ layer_name + " " + distancedir + " " + distance_out_file
 
 
-            subprocess.check_call(command_flow)
-            subprocess.check_call(command_subw)
-            subprocess.check_call(command_stream)
-            subprocess.check_call(command_distance)
+            os.system(command_flow)
+            os.system(command_subw)
+            os.system(command_stream)
+            os.system(command_distance)
             input.close()
 
 
@@ -172,7 +173,7 @@ def PreProcess_TauDEM_for_On_Fly_WatershedDelineation(input_dir_name,watershed_f
     if os.path.isfile(coast_file):
       with fiona.open(coast_file) as source:
        for f in source:
-            dir=output_dir2+"\\Subwatershed_coast"+str(f['properties']['GRIDCODE'])
+            dir=output_dir2+"/Subwatershed_coast"+str(f['properties']['GRIDCODE'])
             os.chdir(dir)
             inputfn = 'subwatershed_coast_'+str(f['properties']['GRIDCODE'])+'.shp'
             outputBufferfn ='subwatershed_coast_buffer'+str(f['properties']['GRIDCODE'])+'.shp'      ##input file buffer shapefile name
@@ -191,8 +192,8 @@ def PreProcess_TauDEM_for_On_Fly_WatershedDelineation(input_dir_name,watershed_f
             command_flow="gdalwarp -te " + xmin + " " + ymin + " " + xmax + " " + ymax + " -dstnodata -32768 -cutline " +  outputBufferfn + " -cl "+ layer_name + " " + flowdir + " " + flow_out_file
             command_stream="gdalwarp -te " + xmin + " " + ymin + " " + xmax + " " + ymax + " -dstnodata -32768 -cutline " +  outputBufferfn + " -cl "+ layer_name + " " + streamdir + " " + stream_out_file
 
-            subprocess.check_call(command_flow)
-            subprocess.check_call(command_stream)
+            os.system(command_flow)
+            os.system(command_stream)
 
             input.close()
 # #
@@ -204,7 +205,7 @@ def PreProcess_TauDEM_for_On_Fly_WatershedDelineation(input_dir_name,watershed_f
 
     with fiona.open(infile) as source:
        for f in source:
-        dir=output_dir2+"\\Subwatershed"+str(f['properties']['GRIDCODE'])
+        dir=output_dir2+"/Subwatershed"+str(f['properties']['GRIDCODE'])
         os.chdir(dir)
         buffer_watershed=os.path.join(dir,"subwatershed_buffer"+str(f['properties']['GRIDCODE'])+".*")
 
@@ -220,7 +221,7 @@ def PreProcess_TauDEM_for_On_Fly_WatershedDelineation(input_dir_name,watershed_f
     if os.path.isfile(coast_file):
       with fiona.open(coast_file) as source:
        for f in source:
-        dir=output_dir2+"\\Subwatershed"+str(f['properties']['GRIDCODE'])
+        dir=output_dir2+"/Subwatershed"+str(f['properties']['GRIDCODE'])
         os.chdir(dir)
         buffer_watershed=os.path.join(dir,"subwatershed_coast_buffer"+str(f['properties']['GRIDCODE'])+".*")
 
@@ -230,3 +231,7 @@ def PreProcess_TauDEM_for_On_Fly_WatershedDelineation(input_dir_name,watershed_f
             if os.path.isfile(file1):
 
                 os.remove(file1)
+
+if __name__ == '__main__':
+    # Map command line arguments to function arguments.
+    PreProcess_TauDEM_for_On_Fly_WatershedDelineation(*sys.argv[1:])

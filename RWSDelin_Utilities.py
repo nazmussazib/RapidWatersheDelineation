@@ -1,23 +1,18 @@
 
 import sys
+import shapefile
 from shapely.wkb import loads
 import pandas as pd
 import numpy as np
 from shapely.geometry import Point, LineString, mapping, shape
 from shapely.ops import cascaded_union
-import fiona
-import pysal as ps
 from fiona import collection
 from osgeo import gdal,ogr
-import fiona
+
 from shapely.geometry import shape, mapping, MultiLineString
 import os, re, os.path
 import osr
 from math import *
-from rasterstats import *
-import subprocess
-import shapefile
-import time
 import glob
 from shapely.ops import unary_union
 import fiona
@@ -243,8 +238,8 @@ def Reach_Upstream_Edge(New_Gage_watershed_Dissolve,Main_watershed,ID,dir_main,o
 
 def GAUGE_WATERSHED(MPH_dir,np,TauDEM_dir,Grid_dir,Grid_Name,Output_dir,Outlet_Point,New_Gage_watershed_Name):
     commands=[]
-    commands.append(os.path.join(MPH_dir,"mpiexec"));commands.append("-n");commands.append(str(np))
-    commands.append(os.path.join(TauDEM_dir,"GageWatershed"))
+    commands.append(os.path.join(MPH_dir,"mpiexec"));commands.append("-np");commands.append(str(np))
+    commands.append(os.path.join(TauDEM_dir,"gagewatershed"))
     commands.append("-p");commands.append(os.path.join(Grid_dir,Grid_Name+"p.tif"))
     commands.append("-o");commands.append(os.path.join(Output_dir,Outlet_Point))
     commands.append("-gw");commands.append(os.path.join(Output_dir,New_Gage_watershed_Name+".tif"))
@@ -255,8 +250,8 @@ def GAUGE_WATERSHED(MPH_dir,np,TauDEM_dir,Grid_dir,Grid_Name,Output_dir,Outlet_P
 
 def MOVEOUTLETTOSTREAMS(MPH_dir,np,TauDEM_dir,Subwatershed_dir,Grid_Name,Output_dir,Outlet_Point,Distance_thresh):
     commands=[]
-    commands.append(os.path.join(MPH_dir,"mpiexec"));commands.append("-n");commands.append(str(np))
-    commands.append(os.path.join(TauDEM_dir, "moveoutletstostreams"))
+    commands.append(os.path.join(MPH_dir,"mpiexec"));commands.append("-np");commands.append(str(np))
+    commands.append(os.path.join(TauDEM_dir, "moveoutletstostrm"))
     commands.append("-p"); commands.append(os.path.join(Subwatershed_dir,Grid_Name+"p.tif"))
     commands.append("-src"); commands.append(os.path.join(Subwatershed_dir, Grid_Name+"src1.tif"))
     commands.append("-o");commands.append(os.path.join(Output_dir,Outlet_Point+".shp"))

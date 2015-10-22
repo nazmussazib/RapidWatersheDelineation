@@ -4,6 +4,8 @@ __author__ = 'shams'
 from RWSDelin_Utilities import *
 import shapefile
 import time
+import sys
+import os
 start_time = time.time()
 
 
@@ -16,7 +18,7 @@ def Point_Watershed_Function(latitude,longitude,snapping,maximum_snap_distance,P
    X=float(latitude)
    Y=float(longitude)
    point1 = Point(X,Y)
-   dir_main=str(Pre_process_TauDEM_dir)+'\Main_Watershed'
+   dir_main=str(Pre_process_TauDEM_dir)+'/Main_Watershed'
    elev_file_with_path=os.path.join(dir_main,elev_file)
    Max_elev_file_with_path=os.path.join(dir_main,Max_elev_file)
    Ad8_weigthed_file_with_path=os.path.join(dir_main,Ad8_weigthed_file)
@@ -27,7 +29,7 @@ def Point_Watershed_Function(latitude,longitude,snapping,maximum_snap_distance,P
    Main_watershed=gage_watershed_file
    Coast_watershed=coast_watershed_file
    Ocean_Stream=Ocean_stream_file
-   Output_dir=str(Pre_process_TauDEM_dir)+'\\Test1'
+   Output_dir=str(Pre_process_TauDEM_dir)+'/Test1'
    if not os.path.exists(Output_dir):
        os.makedirs(Output_dir)
 
@@ -47,10 +49,11 @@ def Point_Watershed_Function(latitude,longitude,snapping,maximum_snap_distance,P
    ID_C=[]
    fg=point_in_Polygon(dir_main,Main_watershed,point1)
    ID=fg
+   print(ID)
    if (ID is None):
        ID=-1
    if(ID<0):
-       if os.path.isfile(Coast_watershed+'.shp'):
+       if os.path.isfile(os.path.join(dir_main,Coast_watershed+'.shp')):
          cg=point_in_Polygon(dir_main,Coast_watershed,point1)
          ID_C.append(cg)
    else:
@@ -63,7 +66,7 @@ def Point_Watershed_Function(latitude,longitude,snapping,maximum_snap_distance,P
    if(ID>0):
       dir_name='Subwatershed'
       sub_file_name="subwatershed_"
-      subwatershed_dir=str(Pre_process_TauDEM_dir)+'\\Subwatershed_ALL\\'+dir_name+str(int(ID))
+      subwatershed_dir=str(Pre_process_TauDEM_dir)+'/Subwatershed_ALL/'+dir_name+str(int(ID))
       dist_file=sub_file_name+str(int(ID))+"dist.tif"
       network_file=sub_file_name+str(int(ID))+"network.shp"
       complimentary_Network_file="Complimentary_watershed"+str(int(ID))+"network.shp"
@@ -75,7 +78,7 @@ def Point_Watershed_Function(latitude,longitude,snapping,maximum_snap_distance,P
    if(ID_C[0]>0):
       dir_name='Subwatershed_coast'
       sub_file_name="subwatershed_coast_"
-      subwatershed_dir=str(Pre_process_TauDEM_dir)+'\\Subwatershed_ALL\\'+dir_name+str(int(ID_C[0]))
+      subwatershed_dir=str(Pre_process_TauDEM_dir)+'/Subwatershed_ALL/'+dir_name+str(int(ID_C[0]))
       Grid_Name=sub_file_name+str(int(ID_C[0]))
       distance_stream=-1
 
@@ -86,10 +89,14 @@ def Point_Watershed_Function(latitude,longitude,snapping,maximum_snap_distance,P
    Outlet_Point="mypoint"
    Distance_thresh=float(str(maximum_snap_distance))
    New_Gage_watershed_Name="local_subwatershed"
-   snaptostream=snapping
+   snaptostream=int(snapping)
+   print(snaptostream) 
    if(snaptostream==1):
      if((ID>0&(distance_stream<Distance_thresh))|(ID_C[0]>0)):
-        subprocess.call(MOVEOUTLETTOSTREAMS(MPH_dir,np,TauDEM_dir,Grid_dir,Grid_Name,Output_dir,Outlet_Point,Distance_thresh))
+        #os.system(MOVEOUTLETTOSTREAMS(MPH_dir,np,TauDEM_dir,Grid_dir,Grid_Name,Output_dir,Outlet_Point,Distance_thresh))
+        cmd=MOVEOUTLETTOSTREAMS(MPH_dir,np,TauDEM_dir,Grid_dir,Grid_Name,Output_dir,Outlet_Point,Distance_thresh)
+        print(cmd);
+        os.system(cmd)
         os.chdir(Output_dir)
         define_projection('Outlets_moved','New_Outlet',infile_crs[0])
         outlet_moved_file=os.path.join(Output_dir,"New_Outlet.shp")
@@ -100,7 +107,7 @@ def Point_Watershed_Function(latitude,longitude,snapping,maximum_snap_distance,P
      define_projection('mypoint','New_Outlet',infile_crs[0])
      outlet_moved_file=os.path.join(Output_dir,"New_Outlet.shp")
 
-   subprocess.call(GAUGE_WATERSHED(MPH_dir,np,TauDEM_dir,Grid_dir,Grid_Name,Output_dir,outlet_moved_file,New_Gage_watershed_Name))
+   os.system(GAUGE_WATERSHED(MPH_dir,np,TauDEM_dir,Grid_dir,Grid_Name,Output_dir,outlet_moved_file,New_Gage_watershed_Name))
    new_watershed_raster=os.path.join(Output_dir,New_Gage_watershed_Name+".tif")
    Raster_to_Polygon(new_watershed_raster,New_Gage_watershed_Name) ## polygonize watershedraster to shapefile
    New_Gage_watershed_Dissolve="local_subwatershed_dissolve"
@@ -125,7 +132,7 @@ def Point_Watershed_Function(latitude,longitude,snapping,maximum_snap_distance,P
       sub_water_file.append(lc_watershed)
       w = shapefile.Writer()
       for i in compli_watershed_ID:
-          subwater_dir=str(Pre_process_TauDEM_dir)+'\\Subwatershed_ALL\\Subwatershed'+str(int(i))
+          subwater_dir=str(Pre_process_TauDEM_dir)+'/Subwatershed_ALL/Subwatershed'+str(int(i))
           com_watershed="Full_watershed"+str(int(i))
           com_file=os.path.join(subwater_dir, com_watershed+'.shp')
           if os.path.isfile(com_file):
@@ -157,13 +164,14 @@ def Point_Watershed_Function(latitude,longitude,snapping,maximum_snap_distance,P
    Get_Watershed_Attributes('New_Outlet.shp','point_watershed1',projection,elev_file_with_path,Max_elev_file_with_path,
                              Ad8_weigthed_file_with_path,Ad8_file_with_path,
                              plen_file_with_path,tlen_file_with_path,gord_file_with_path)
-   # pattern = "^mypoint"
-   # path=Output_dir
-   # remove_file_directory(path,pattern)
-   # pattern = "^Outlets"
-   # path=Output_dir
-   # purge(path,pattern)
-
+   pattern = "^mypoint"
+   path=Output_dir
+   remove_file_directory(path,pattern)
+   pattern = "^Outlets"
+   path=Output_dir
+   purge(path,pattern)
+   
+  
    remove_file('mypoint.shp')
    remove_file('Outlets.shp')
    remove_file('Outlets_moved.shp')
@@ -172,9 +180,12 @@ def Point_Watershed_Function(latitude,longitude,snapping,maximum_snap_distance,P
    remove_file('point_watershed.shp')
    remove_file('point_watershed1.shp')
    os.remove('local_subwatershed.txt')
-  #  pattern = "^point_watershed"
-  #  path=Output_dir
-  #  purge(path,pattern)
+   pattern = "^point_watershed"
+   path=Output_dir
+   purge(path,pattern)
+   pattern = "^local"
+   path=Output_dir
+   remove_file_directory(path,pattern)
 
 
    filelist = glob.glob("temp_*")
@@ -185,7 +196,9 @@ def Point_Watershed_Function(latitude,longitude,snapping,maximum_snap_distance,P
 
    print("--- %s seconds ---" % (time.time() - start_time))
 
-
+if __name__ == '__main__':
+    # Map command line arguments to function arguments.
+    Point_Watershed_Function(*sys.argv[1:])
 
 
 
