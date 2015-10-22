@@ -11,12 +11,12 @@ start_time = time.time()
 
 
 
-def Point_Watershed_Function(latitude,longitude,snapping,maximum_snap_distance,Pre_process_TauDEM_dir,Ocean_stream_file,gage_watershed_file,coast_watershed_file,elev_file,Max_elev_file,
+def Point_Watershed_Function(longitude,latitude,snapping,maximum_snap_distance,Pre_process_TauDEM_dir,Ocean_stream_file,gage_watershed_file,coast_watershed_file,elev_file,Max_elev_file,
                              Ad8_weigthed_file,Ad8_file,
                              plen_file,tlen_file,gord_file,np,TauDEM_dir, MPI_dir):
 
-   X=float(latitude)
-   Y=float(longitude)
+   X=float(longitude)
+   Y=float(latitude)
    point1 = Point(X,Y)
    dir_main=str(Pre_process_TauDEM_dir)+'/Main_Watershed'
    elev_file_with_path=os.path.join(dir_main,elev_file)
