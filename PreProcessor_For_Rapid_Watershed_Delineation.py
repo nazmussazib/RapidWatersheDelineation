@@ -58,6 +58,25 @@ def PreProcess_TauDEM_for_On_Fly_WatershedDelineation(input_dir_name,watershed_f
         Number_contribute_subwatershed=len(Real_ID_Complimentary)
         files=[]
         if(Number_contribute_subwatershed==0):
+            source_dir=output_dir1
+            os.chdir(source_dir)
+            inputfile=os.path.join(source_dir,"subwatershed_"+str(f['properties']['GRIDCODE'])+".shp")
+            outputfile='Full_watershed'+str(f['properties']['GRIDCODE'])+'.shp'
+            with collection(inputfile, "r") as input:
+                schema = input.schema.copy()
+                with collection(
+                        outputfile, "w", "ESRI Shapefile",schema, infile_crs) as output:
+                    shapes = []
+                    for f in input:
+                        shapes.append( shape(f['geometry']).buffer(.000000001))
+                    merged = cascaded_union(shapes)
+                    output.write({
+                        'properties': {
+                            'GRIDCODE': '1'
+                        },
+                        'geometry': mapping(merged)
+                    })
+
 
             print "No Complimentary watershed Exists"
 
