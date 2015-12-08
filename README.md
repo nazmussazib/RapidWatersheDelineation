@@ -1,7 +1,5 @@
 # rapid-watershed-delineation
 
-This implementation of Rapid Watershed Delineation was copied from [this repo]([https://github.com/nazmussazib/RapidWatersheDelineation).
-
 ## Deployments
 
 Deployments to PyPi are handled through [Travis-CI](https://travis-ci.org/WikiWatershed/rapid-watershed-delineation). The following git flow commands approximate a release using Travis:
