@@ -27,7 +27,8 @@ def Point_Watershed_Function(
         gord_file,
         np,
         TauDEM_dir,
-        MPI_dir):
+        MPI_dir,
+        Output_dir):
 
     X = float(longitude)
     Y = float(latitude)
@@ -43,7 +44,6 @@ def Point_Watershed_Function(
     Main_watershed = gage_watershed_file
     Coast_watershed = coast_watershed_file
     Ocean_Stream = Ocean_stream_file
-    Output_dir = str(Pre_process_TauDEM_dir) + '/Test1'
     if not os.path.exists(Output_dir):
         os.makedirs(Output_dir)
 
@@ -58,7 +58,7 @@ def Point_Watershed_Function(
     if os.path.isfile(os.path.join(dir_main, Ocean_Stream + '.shp')):
         ID_Ocean_Stream = point_in_Polygon(dir_main, Ocean_Stream, point1)
         if (ID_Ocean_Stream > 0):
-            sys.exit("POINT LOCATED IN SIDE THE OCEAN!")
+            raise Exception('Point located inside the ocean.')
 
     ID_C = []
     fg = point_in_Polygon(dir_main, Main_watershed, point1)
@@ -75,7 +75,7 @@ def Point_Watershed_Function(
     # if (ID is None)&(ID_C[0] is None):
         #sys.exit("POINT LOCATED OUT SIDE THE WATERSHED!")
     if ((ID < 0) & (ID_C[0] < 0)):
-        sys.exit("POINT LOCATED OUT SIDE THE WATERSHED!")
+        raise Exception('Point located outside the watershed.')
 
     if(ID > 0):
         dir_name = 'Subwatershed'
