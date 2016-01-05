@@ -1,3 +1,10 @@
+## 0.2.0
+
+- Conform to PEP8 code style
+- Add complete RWD python requirements
+- Add Flask HTTP API
+- Remove support for Travis CI
+
 ## 0.1.2
 
 - Change password.
