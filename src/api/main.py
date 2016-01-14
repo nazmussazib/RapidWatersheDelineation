@@ -1,6 +1,4 @@
-import os
-from os.path import join
-import errno
+import os.path
 import shutil
 from subprocess import call
 import json
@@ -58,8 +56,8 @@ def run_rwd(lat, lon):
             output_path
         )
 
-        output_shp_path = join(output_path, 'New_Point_Watershed.shp')
-        output_json_path = join(output_path, 'output.json')
+        output_shp_path = os.path.join(output_path, 'New_Point_Watershed.shp')
+        output_json_path = os.path.join(output_path, 'output.json')
         call(['ogr2ogr', output_json_path, output_shp_path, '-f', 'GeoJSON'])
         try:
             with open(output_json_path, 'r') as output_json_file:
