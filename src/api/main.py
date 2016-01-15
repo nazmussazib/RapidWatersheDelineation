@@ -1,6 +1,5 @@
-import os
-from os.path import join
-import errno
+import logging
+import os.path
 import shutil
 from subprocess import call
 import json
@@ -12,6 +11,9 @@ from rwd.Rapid_Watershed_Delineation import Point_Watershed_Function
 
 
 app = Flask(__name__)
+
+log = logging.getLogger(__name__)
+log.addHandler(logging.StreamHandler())
 
 
 def error_response(error_message):
@@ -58,8 +60,8 @@ def run_rwd(lat, lon):
             output_path
         )
 
-        output_shp_path = join(output_path, 'New_Point_Watershed.shp')
-        output_json_path = join(output_path, 'output.json')
+        output_shp_path = os.path.join(output_path, 'New_Point_Watershed.shp')
+        output_json_path = os.path.join(output_path, 'output.json')
         call(['ogr2ogr', output_json_path, output_shp_path, '-f', 'GeoJSON'])
         try:
             with open(output_json_path, 'r') as output_json_file:
@@ -67,10 +69,12 @@ def run_rwd(lat, lon):
                 shutil.rmtree(output_path)
                 return jsonify(**output)
         except:
+            log.exception('Could not GeoJSON from output')
             return error_response('Could not get GeoJSON from output.')
     except Exception as exc:
+        log.exception('Error running Point_Watershed_Function')
         return error_response(exc.message)
 
 
 if __name__ == "__main__":
-    app.run(host="0.0.0.0", debug=True)
+    app.run(host="0.0.0.0")
