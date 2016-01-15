@@ -1,3 +1,4 @@
+import logging
 import os.path
 import shutil
 from subprocess import call
@@ -10,6 +11,9 @@ from rwd.Rapid_Watershed_Delineation import Point_Watershed_Function
 
 
 app = Flask(__name__)
+
+log = logging.getLogger(__name__)
+log.addHandler(logging.StreamHandler())
 
 
 def error_response(error_message):
@@ -65,8 +69,10 @@ def run_rwd(lat, lon):
                 shutil.rmtree(output_path)
                 return jsonify(**output)
         except:
+            log.exception('Could not GeoJSON from output')
             return error_response('Could not get GeoJSON from output.')
     except Exception as exc:
+        log.exception('Error running Point_Watershed_Function')
         return error_response(exc.message)
 
 
