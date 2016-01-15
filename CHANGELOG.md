@@ -1,3 +1,7 @@
+## 0.2.1
+
+- Add logging
+
 ## 0.2.0
 
 - Conform to PEP8 code style
