@@ -101,9 +101,11 @@ def Point_Watershed_Function(longitude,latitude,snapping,maximum_snap_distance,P
         define_projection('Outlets_moved','New_Outlet',infile_crs[0])
         outlet_moved_file=os.path.join(Output_dir,"New_Outlet.shp")
      else:
+         os.chdir(Output_dir)
          define_projection('mypoint','New_Outlet',infile_crs[0])
          outlet_moved_file=os.path.join(Output_dir,"New_Outlet.shp")
    else:
+     os.chdir(Output_dir)
      define_projection('mypoint','New_Outlet',infile_crs[0])
      outlet_moved_file=os.path.join(Output_dir,"New_Outlet.shp")
 
