@@ -1,3 +1,7 @@
+## 0.2.2
+
+- Fix bug for output directory when snapping=0
+
 ## 0.2.1
 
 - Add logging
