@@ -69,7 +69,7 @@ def run_rwd(lat, lon):
                 shutil.rmtree(output_path)
                 return jsonify(**output)
         except:
-            log.exception('Could not GeoJSON from output')
+            log.exception('Could not get GeoJSON from output')
             return error_response('Could not get GeoJSON from output.')
     except Exception as exc:
         log.exception('Error running Point_Watershed_Function')
