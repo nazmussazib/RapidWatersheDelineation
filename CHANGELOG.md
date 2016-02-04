@@ -1,3 +1,7 @@
+## 0.3.0
+
+- Preserve input and snapped points in API results
+
 ## 0.2.2
 
 - Fix bug for output directory when snapping=0
